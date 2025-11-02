@@ -4,10 +4,10 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const APP_NAME = import.meta.env.VITE_APP_NAME || "Social Media Automation";
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
-  const APP_NAME = import.meta.env.VITE_APP_NAME || "Social Media Automation";
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -55,7 +55,7 @@ const Header = () => {
         {/* 2. Navigation Tabs */}
         <nav className='hidden md:flex items-center gap-8 text-[#013A63] font-medium'>
           {[
-            { label: "About Us", path: "/about" },
+            { label: "About Us", path: "/about-us" },
             { label: "Contact", path: "/contact" },
             { label: "View Analytics", path: "/analytics" },
           ].map((tab, i) => (
@@ -150,7 +150,7 @@ const Header = () => {
             className='md:hidden bg-[#FFFFFF] border-t border-[#E2E8F0] shadow-md'>
             <div className='flex flex-col px-6 py-4 space-y-3 text-[#013A63] font-medium'>
               {[
-                { label: "About Us", path: "/about" },
+                { label: "About Us", path: "/about-us" },
                 { label: "Contact", path: "/contact" },
                 { label: "View Analytics", path: "/analytics" },
               ].map((tab, i) => (
