@@ -4,21 +4,31 @@ import { Lock, Mail, Loader, Github } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
+import { useAuthStore } from "../stores/authStore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const isLoading = false;
-  const error = null;
+  const [localError, setLocalError] = useState(null);
   const navigate = useNavigate();
+
+  const { login, isLoading, error, isAuthenticated } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log({ email, password });
+    setLocalError(null);
+
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (err) {
+      setLocalError(err.message || "Failed to login. Please try again.");
+    }
   };
 
   const handleSocialLogin = (provider) => {
     console.log(`Login with ${provider} clicked`);
+    // OAuth logic
   };
 
   return (
@@ -28,7 +38,7 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className='flex w-full max-w-6xl bg-white rounded-2xl shadow-lg border border-[#E2E8F0] overflow-hidden md:h-[650px]'>
-        {/* Left Side: Image Section (visible only on md and above) */}
+        {/* Left Side */}
         <div className='hidden md:flex md:w-1/2 flex-col items-center justify-center p-10 bg-[#F1F5F9] border-r border-[#E2E8F0]'>
           <img
             src='/login-image.png'
@@ -44,7 +54,7 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Right Side: Login Form */}
+        {/* Right Side */}
         <div className='w-full md:w-1/2 flex justify-center items-center p-8 md:p-10 bg-white'>
           <div className='w-full max-w-md'>
             <h2 className='text-3xl font-bold text-center mb-6 text-[#012A4A]'>
@@ -74,9 +84,9 @@ const Login = () => {
                 required
               />
 
-              {error && (
+              {(error || localError) && (
                 <p className='text-[#E63946] text-sm font-medium text-center'>
-                  {error}
+                  {error || localError}
                 </p>
               )}
 

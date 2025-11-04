@@ -6,24 +6,31 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import Input from "../components/Input";
 import GenderCheckbox from "../components/GenderCheckbox";
+import { useAuthStore } from "../stores/authStore";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [gender, setGender] = useState("");
-
-  const isLoading = false;
-  const error = null;
   const navigate = useNavigate();
+
+  const { signup, isLoading, error } = useAuthStore();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    console.log({ username, email, password, gender });
+
+    try {
+      await signup(username, email, password, gender);
+      navigate("/profile");
+    } catch (err) {
+      console.error("Signup failed:", err);
+    }
   };
 
   const handleSocialSignUp = (provider) => {
     console.log(`Signup with ${provider} clicked`);
+    // OAuth endpoints.
   };
 
   return (
@@ -139,7 +146,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        {/* Right Side: Image Section (visible only on md and above) */}
+        {/* Right Side: Image Section */}
         <div className='hidden md:flex md:w-1/2 flex-col items-center justify-center p-10 bg-[#F1F5F9] border-l border-[#E2E8F0]'>
           <img
             src='/signup-image.png'
