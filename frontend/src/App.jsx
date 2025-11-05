@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import NotFound from "./pages/NotFound";
 import { useAuthStore } from "./stores/authStore";
+import CreatePost from "./pages/CreatePost";
 
 // ✅ Protected Route — requires login
 const ProtectedRoute = ({ children }) => {
@@ -51,6 +52,10 @@ const App = () => {
       setShowSplash(true);
       sessionStorage.setItem("visited", "true");
     }
+  }, []);
+
+  useEffect(() => {
+    useAuthStore.getState().validateSession();
   }, []);
 
   return (
@@ -116,6 +121,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/create-post'
+                element={
+                  <ProtectedRoute>
+                    <CreatePost />
                   </ProtectedRoute>
                 }
               />

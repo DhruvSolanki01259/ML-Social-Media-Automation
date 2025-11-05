@@ -18,11 +18,12 @@ const Login = () => {
     e.preventDefault();
     setLocalError(null);
 
-    try {
-      await login(email, password);
+    await login(email, password);
+    const success = await login(email, password);
+    if (success) {
       navigate("/");
-    } catch (err) {
-      setLocalError(err.message || "Failed to login. Please try again.");
+    } else {
+      setLocalError("Invalid email or password");
     }
   };
 

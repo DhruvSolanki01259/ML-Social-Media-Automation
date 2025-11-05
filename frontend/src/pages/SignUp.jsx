@@ -21,8 +21,13 @@ const SignUp = () => {
     e.preventDefault();
 
     try {
-      await signup(username, email, password, gender);
-      navigate("/profile");
+      const success = await signup(username, email, password, gender);
+
+      if (success) {
+        navigate("/");
+      } else {
+        setLocalError("Invalid email or password");
+      }
     } catch (err) {
       console.error("Signup failed:", err);
     }

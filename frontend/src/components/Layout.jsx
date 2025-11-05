@@ -13,6 +13,7 @@ const Layout = ({ children }) => {
     "/contact", // Contact page
     "/profile", // User Profile
     "/analytics", // Analytics Dashboard
+    "/create-post", // Create a Post
   ];
 
   // Define routes that should NOT display Header and Footer

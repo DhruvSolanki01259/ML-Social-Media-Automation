@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Linkedin, Github, Mail } from "lucide-react";
-import { teamData } from "../stores/teamData";
+import { teamData } from "../data/teamData";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   LogOut,
-  Link2,
   UserPen,
-  Trash2,
   PlusCircle,
+  Link2,
   Settings2,
+  MapPin, // ✅ Added
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
@@ -14,173 +14,69 @@ import { useAuthStore } from "../stores/authStore";
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.8, delay, ease: "easeOut" },
+  transition: { duration: 0.6, delay, ease: "easeOut" },
 });
 
 const Profile = () => {
   const navigate = useNavigate();
-  const {
-    user,
-    logout,
-    isLoading,
-    updateUser,
-    deleteUserField,
-    socials,
-    setSocials,
-    saveProfileToBackend,
-  } = useAuthStore();
+  const { user, logout, isLoading } = useAuthStore();
 
-  const [showSocialForm, setShowSocialForm] = useState(false);
-  const [localSocials, setLocalSocials] = useState(socials);
   const [editMode, setEditMode] = useState(false);
+  const [showSocialForm, setShowSocialForm] = useState(false);
   const [localProfile, setLocalProfile] = useState({
-    bio: user?.bio || "",
-    location: user?.location || "",
-    website: user?.website || "",
-    profilePic: user?.profilePic || "",
+    bio: "",
+    location: "",
+    website: "",
+    profilePic: "",
+  });
+  const [socials, setSocials] = useState({
+    instagram: "",
+    twitter: "",
+    linkedin: "",
+    facebook: "",
   });
 
-  // ✅ Save updated profile locally
-  const handleProfileSave = async () => {
-    await updateUser(localProfile);
-    await saveProfileToBackend(); // sync backend
-    setEditMode(false);
-  };
-
-  // ✅ Delete individual profile fields
-  const handleDeleteField = async (field) => {
-    await deleteUserField(field);
-    setLocalProfile((prev) => ({ ...prev, [field]: "" }));
-  };
-
-  // ✅ Logout user
+  // ✅ Logout handler
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  // ✅ Normalize & save socials globally + backend
-  const handleSocialSubmit = async (e) => {
-    e.preventDefault();
-
-    const normalized = Object.fromEntries(
-      Object.entries(localSocials).map(([key, value]) => {
-        if (!value) return [key, ""];
-        const trimmed = value.trim();
-        return [
-          key,
-          trimmed.startsWith("http") ? trimmed : `https://${trimmed}`,
-        ];
-      })
-    );
-
-    // ✅ Update Zustand store and sync backend
-    Object.entries(normalized).forEach(([key, value]) =>
-      setSocials(key, value)
-    );
-
-    await updateUser({ socials: normalized });
-    await saveProfileToBackend();
-
-    setShowSocialForm(false);
+  const handleProfileSave = () => {
+    setEditMode(false);
   };
 
-  useEffect(() => {
-    setLocalSocials(socials);
-  }, [socials]);
-
   return (
-    <section className='min-h-screen bg-[#F8FAFC] py-16 px-6 relative'>
-      {/* Socials Form Modal */}
-      {showSocialForm && (
-        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className='bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg'>
-            <h3 className='text-2xl font-semibold text-[#012A4A] mb-3 text-center'>
-              Manage Social Links
-            </h3>
-            <p className='text-sm text-[#6C757D] text-center mb-6'>
-              Include{" "}
-              <span className='text-[#01497C] font-medium'>https://</span>{" "}
-              before URLs — we’ll add it automatically if missing.
-            </p>
-
-            <form
-              onSubmit={handleSocialSubmit}
-              className='space-y-4'>
-              {Object.keys(localSocials).map((platform) => (
-                <div key={platform}>
-                  <label
-                    htmlFor={platform}
-                    className='block text-[#01497C] font-medium mb-1 capitalize'>
-                    {platform} URL
-                  </label>
-                  <input
-                    id={platform}
-                    type='text'
-                    placeholder={`https://${platform}.com/yourprofile`}
-                    value={localSocials[platform] || ""}
-                    onChange={(e) =>
-                      setLocalSocials({
-                        ...localSocials,
-                        [platform]: e.target.value,
-                      })
-                    }
-                    className='w-full border border-[#E2E8F0] rounded-lg px-4 py-2 focus:border-[#61A5C2] outline-none'
-                  />
-                </div>
-              ))}
-              <div className='flex justify-end gap-3 mt-6'>
-                <button
-                  type='button'
-                  onClick={() => setShowSocialForm(false)}
-                  className='border border-[#E2E8F0] text-[#6C757D] px-5 py-2 rounded-lg hover:text-[#012A4A]'>
-                  Cancel
-                </button>
-                <button
-                  type='submit'
-                  className='bg-[#01497C] text-white px-5 py-2 rounded-lg hover:bg-[#013A63] transition-all'>
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      <div className='max-w-6xl mx-auto'>
-        {/* Header */}
+    <section className='min-h-screen bg-[#F8FAFC] py-16 px-6'>
+      <div className='max-w-7xl mx-auto space-y-16'>
+        {/* === HEADER SECTION === */}
         <motion.div
           {...fadeUp(0)}
-          className='mb-12 text-center relative'>
-          <div className='flex flex-col md:flex-row justify-between items-center gap-6'>
-            <div className='text-center md:text-left'>
-              <h1 className='text-4xl md:text-5xl font-bold text-[#012A4A]'>
-                Welcome,{" "}
-                <span className='text-[#01497C]'>
-                  {user?.username || "User"}
-                </span>
-              </h1>
-              <p className='text-[#013A63]/80 text-base md:text-lg mt-3'>
-                Manage your profile, connect socials, and personalize your
-                account.
-              </p>
-            </div>
-
-            <button
-              className='flex items-center gap-2 px-5 py-2 rounded-lg border border-[#01497C] text-[#01497C] font-medium hover:bg-[#01497C] hover:text-white transition-all'
-              onClick={() => navigate("/create-post")}>
-              <PlusCircle className='w-5 h-5' /> Create Post
-            </button>
+          className='flex flex-col md:flex-row justify-between items-center gap-6'>
+          <div className='text-center md:text-left'>
+            <h1 className='text-4xl md:text-5xl font-bold text-[#012A4A]'>
+              Welcome,{" "}
+              <span className='text-[#01497C]'>{user?.username || "User"}</span>
+            </h1>
+            <p className='text-[#013A63]/80 text-base md:text-lg mt-3'>
+              Manage your profile, posts, and connected accounts.
+            </p>
           </div>
+
+          {/* ✅ Create Post Button */}
+          <button
+            onClick={() => navigate("/create-post")}
+            className='flex items-center gap-2 px-5 py-2 rounded-lg border border-[#01497C] text-[#01497C] font-medium hover:bg-[#01497C] hover:text-white transition-all'>
+            <PlusCircle className='w-5 h-5' />
+            Create Post
+          </button>
         </motion.div>
 
-        {/* Profile Info */}
+        {/* === PROFILE INFO CARD === */}
         <motion.div
           {...fadeUp(0.2)}
-          className='relative bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8 mb-16 flex flex-col md:flex-row items-center gap-8'>
+          className='relative bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8 flex flex-col md:flex-row items-center gap-8'>
+          {/* ✅ Logout button */}
           <button
             onClick={handleLogout}
             disabled={isLoading}
@@ -195,97 +91,52 @@ const Profile = () => {
                 user?.username || "User"
               )}`
             }
-            alt='User Profile'
+            alt='Profile'
             className='w-32 h-32 rounded-full border-4 border-[#61A5C2] object-cover shadow'
           />
 
+          {/* === USER DETAILS === */}
           <div className='flex-1 text-center md:text-left relative w-full'>
-            <div className='flex justify-between items-start'>
-              <div>
-                <h2 className='text-2xl font-semibold text-[#012A4A]'>
-                  {user?.username}
-                </h2>
-                <p className='text-[#2A6F97] font-medium'>{user?.email}</p>
-              </div>
+            <h2 className='text-2xl font-semibold text-[#012A4A]'>
+              {user?.username}
+            </h2>
+            <p className='text-[#2A6F97] font-medium'>{user?.email}</p>
+
+            <div className='mt-4 space-y-2'>
+              <p className='text-[#6C757D]'>
+                {user?.bio || "No bio added yet."}
+              </p>
+              <p className='text-[#01497C] flex items-center justify-center md:justify-start gap-1'>
+                <MapPin className='w-4 h-4' />
+                {user?.location || "Location not set"}
+              </p>
+              {user?.website && (
+                <a
+                  href={user.website}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-[#2A6F97] hover:underline block'>
+                  🌐 {user.website}
+                </a>
+              )}
             </div>
 
-            {editMode ? (
-              <div className='mt-4 space-y-3'>
-                {["bio", "location", "website"].map((field) => (
-                  <div
-                    key={field}
-                    className='flex items-center gap-2'>
-                    <input
-                      type='text'
-                      placeholder={
-                        field.charAt(0).toUpperCase() + field.slice(1)
-                      }
-                      value={localProfile[field]}
-                      onChange={(e) =>
-                        setLocalProfile({
-                          ...localProfile,
-                          [field]: e.target.value,
-                        })
-                      }
-                      className='w-full border border-[#E2E8F0] rounded-lg px-4 py-2 text-[#012A4A] focus:border-[#61A5C2] outline-none'
-                    />
-                    <button
-                      onClick={() => handleDeleteField(field)}
-                      className='text-[#E63946] hover:scale-110 transition-transform'>
-                      <Trash2 className='w-4 h-4' />
-                    </button>
-                  </div>
-                ))}
-
-                <div className='flex gap-3 mt-4'>
-                  <button
-                    onClick={handleProfileSave}
-                    className='bg-[#01497C] text-white px-5 py-2 rounded-lg hover:bg-[#013A63] transition-all'>
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditMode(false)}
-                    className='border border-[#E2E8F0] text-[#6C757D] px-5 py-2 rounded-lg hover:text-[#012A4A]'>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className='mt-4 space-y-2'>
-                <p className='text-[#6C757D]'>
-                  {user?.bio || "No bio added yet."}
-                </p>
-                <p className='text-[#01497C]'>
-                  📍 {user?.location || "Location not set"}
-                </p>
-                {user?.website && (
-                  <a
-                    href={user.website}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-[#2A6F97] hover:underline block'>
-                    🌐 {user.website}
-                  </a>
-                )}
-              </div>
-            )}
-
-            {!editMode && (
-              <div className='absolute bottom-0 right-0 mt-6'>
-                <button
-                  onClick={() => setEditMode(true)}
-                  className='flex items-center gap-2 text-[#01497C] border border-[#01497C] px-4 py-1.5 rounded-lg hover:bg-[#01497C] hover:text-white transition-all'>
-                  <UserPen className='w-4 h-4' /> Edit Profile
-                </button>
-              </div>
-            )}
+            {/* ✅ Edit Profile Button moved to bottom right */}
+            <div className='mt-6 flex justify-center md:justify-end'>
+              <button
+                onClick={() => setEditMode(true)}
+                className='flex items-center gap-2 text-[#01497C] border border-[#01497C] px-4 py-1.5 rounded-lg hover:bg-[#01497C] hover:text-white transition-all'>
+                <UserPen className='w-4 h-4' />
+                Edit Profile
+              </button>
+            </div>
           </div>
         </motion.div>
 
-        {/* Connected Socials */}
+        {/* === CONNECTED SOCIALS SECTION === */}
         <motion.div
           {...fadeUp(0.3)}
-          className='bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8 mb-16'>
+          className='bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8'>
           <div className='flex items-center justify-between mb-6'>
             <div className='flex items-center gap-3'>
               <Link2 className='text-[#01497C] w-6 h-6' />
@@ -297,24 +148,25 @@ const Profile = () => {
             <button
               onClick={() => setShowSocialForm(true)}
               className='flex items-center gap-2 border border-[#01497C] text-[#01497C] px-4 py-1.5 rounded-lg hover:bg-[#01497C] hover:text-white transition-all'>
-              <Settings2 className='w-4 h-4' /> Manage
+              <Settings2 className='w-4 h-4' />
+              Manage
             </button>
           </div>
 
           <div className='grid sm:grid-cols-2 md:grid-cols-4 gap-6'>
-            {Object.entries(socials).map(([key, value]) => (
+            {Object.entries(socials).map(([platform, link]) => (
               <div
-                key={key}
+                key={platform}
                 className={`p-4 rounded-lg border text-center ${
-                  value
+                  link
                     ? "border-[#2ECC71] text-[#2ECC71] bg-[#2ECC71]/5"
                     : "border-[#E2E8F0] text-[#6C757D]"
                 }`}>
                 <span className='font-medium capitalize'>
-                  {key}:{" "}
-                  {value ? (
+                  {platform}:{" "}
+                  {link ? (
                     <a
-                      href={value}
+                      href={link}
                       target='_blank'
                       rel='noopener noreferrer'
                       className='underline hover:text-[#27AE60]'>
@@ -329,24 +181,58 @@ const Profile = () => {
           </div>
         </motion.div>
 
-        {/* Uploaded Posts Section */}
+        {/* === UPLOADED POSTS === */}
         <motion.div
           {...fadeUp(0.4)}
-          className='bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8 mb-16'>
-          <h3 className='text-xl font-semibold text-[#012A4A] mb-4'>
+          className='bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8'>
+          <h3 className='text-xl font-semibold text-[#012A4A] mb-6'>
             Uploaded Posts
           </h3>
-          <p className='text-[#6C757D] text-center'>No posts uploaded yet.</p>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+            {[1, 2, 3, 4, 5, 6].map((post) => (
+              <div
+                key={post}
+                className='border border-[#E2E8F0] rounded-lg p-4 hover:shadow transition-all'>
+                <img
+                  src={`https://picsum.photos/300/200?random=${post}`}
+                  alt='Post'
+                  className='rounded-lg mb-3'
+                />
+                <p className='text-[#012A4A] font-medium'>Post #{post}</p>
+                <p className='text-[#6C757D] text-sm'>Uploaded recently</p>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Scheduled Posts Section */}
+        {/* === SCHEDULED POSTS === */}
         <motion.div
           {...fadeUp(0.5)}
           className='bg-white border border-[#E2E8F0] rounded-2xl shadow-sm hover:shadow-md transition-all p-8'>
-          <h3 className='text-xl font-semibold text-[#012A4A] mb-4'>
+          <h3 className='text-xl font-semibold text-[#012A4A] mb-6'>
             Scheduled Posts
           </h3>
-          <p className='text-[#6C757D] text-center'>No posts scheduled yet.</p>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+            {[1, 2, 3].map((post) => (
+              <div
+                key={post}
+                className='border border-[#E2E8F0] rounded-lg p-4 hover:shadow transition-all'>
+                <img
+                  src={`https://picsum.photos/300/200?blur=2&random=${
+                    post + 10
+                  }`}
+                  alt='Scheduled'
+                  className='rounded-lg mb-3'
+                />
+                <p className='text-[#012A4A] font-medium'>Scheduled #{post}</p>
+                <p className='text-[#6C757D] text-sm'>
+                  Scheduled for 2025-11-10
+                </p>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

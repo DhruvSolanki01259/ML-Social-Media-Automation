@@ -8,11 +8,8 @@ import {
   Instagram,
   Twitter,
   Linkedin,
-  Facebook,
   CheckCircle,
-  XCircle,
 } from "lucide-react";
-import { useAuthStore } from "../stores/authStore";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 40 },
@@ -21,39 +18,6 @@ const fadeUp = (delay = 0) => ({
 });
 
 const Home = () => {
-  const { socials } = useAuthStore();
-
-  // ✅ Include Facebook connection
-  const socialConnections = [
-    {
-      id: "linkedin",
-      icon: "Linkedin",
-      color: "#0A66C2",
-      connected: !!socials.linkedin,
-    },
-    {
-      id: "twitter",
-      icon: "Twitter",
-      color: "#1DA1F2",
-      connected: !!socials.twitter,
-    },
-    {
-      id: "instagram",
-      icon: "Instagram",
-      color: "#E4405F",
-      connected: !!socials.instagram,
-    },
-    {
-      id: "facebook",
-      icon: "Facebook",
-      color: "#1877F2",
-      connected: !!socials.facebook,
-    },
-  ];
-
-  const allConnected = socialConnections.every((s) => s.connected);
-  const icons = { Instagram, Twitter, Linkedin, Facebook };
-
   return (
     <section className='bg-[#F8FAFC] text-[#012A4A] min-h-screen overflow-hidden'>
       {/* 🌟 Hero Section */}
@@ -136,7 +100,7 @@ const Home = () => {
               </div>
             </motion.div>
 
-            {/* ✅ Dynamic Social Connection Card */}
+            {/* Static Socials Card */}
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{
@@ -145,36 +109,15 @@ const Home = () => {
                 ease: "easeInOut",
                 delay: 1,
               }}
-              className='absolute bottom-[-40px] left-[-40px] bg-white border border-[#E2E8F0] rounded-2xl shadow-lg p-4 w-[200px] sm:w-[220px]'>
+              className='absolute bottom-[-40px] left-[-40px] bg-white border border-[#E2E8F0] rounded-2xl shadow-lg p-4 w-[180px] sm:w-[200px]'>
               <h4 className='text-sm font-semibold text-[#012A4A] mb-2 flex items-center gap-1'>
-                {allConnected ? (
-                  <>
-                    <CheckCircle className='text-[#2ECC71] w-4 h-4' />
-                    <span>All Connected</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className='text-[#E63946] w-4 h-4' />
-                    <span>Not Connected</span>
-                  </>
-                )}
+                <CheckCircle className='text-[#2ECC71] w-4 h-4' />
+                <span>All Connected</span>
               </h4>
-
               <div className='flex items-center gap-3 mt-2'>
-                {socialConnections.map((social) => {
-                  const Icon = icons[social.icon];
-                  return (
-                    <Icon
-                      key={social.id}
-                      className={`w-5 h-5 transition-all ${
-                        social.connected
-                          ? "opacity-100"
-                          : "opacity-30 grayscale cursor-not-allowed"
-                      }`}
-                      style={{ color: social.color }}
-                    />
-                  );
-                })}
+                <Instagram className='w-5 h-5 text-[#E1306C]' />
+                <Twitter className='w-5 h-5 text-[#1DA1F2]' />
+                <Linkedin className='w-5 h-5 text-[#0077B5]' />
               </div>
             </motion.div>
           </div>
@@ -204,7 +147,7 @@ const Home = () => {
           {
             icon: <Share2 className='text-[#01497C] w-8 h-8' />,
             title: "Cross-Platform Posting",
-            desc: "Post across Instagram, Twitter, LinkedIn, and Facebook in one click.",
+            desc: "Post across Instagram, Twitter, and LinkedIn in one click.",
           },
         ].map((feature, i) => (
           <motion.div

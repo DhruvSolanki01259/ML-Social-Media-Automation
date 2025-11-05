@@ -27,6 +27,27 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: 160, // Twitter-like bio limit
+      default: "",
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: "",
+    },
+    website: {
+      type: String,
+      trim: true,
+      default: "",
+      match: [
+        /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-./?%&=]*)?$/,
+        "Please enter a valid website URL",
+      ],
+    },
     lastLogin: {
       type: Date,
       default: null,
