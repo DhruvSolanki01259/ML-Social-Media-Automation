@@ -1,36 +1,100 @@
-import User from "../models/user.model";
-import { errorHandler, serverErrorHandler } from "../utils/responseHandlers";
+import User from "../models/user.model.js";
 
-export const addSocials = async (req, res) => {
+// GET user profile
+export const getProfile = async (req, res) => {
   try {
-    const { linkedinUrl, instagramUrl, facebookUrl, twitterUrl } = req.body;
+    const user = await User.findById(req.user).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Server error while fetching profile" });
+  }
+};
 
-    if (!linkedinUrl || !instagramUrl || !facebookUrl || !twitterUrl) {
-      return errorHandler(res, 400, "All fields are required");
+// UPDATE profile (username, bio, location, website)
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, bio, location, website } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user,
+      { username, bio, location, website },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const user = await User.findById(req.user.id);
+    res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error while updating profile" });
+  }
+};
+
+// CRUD Socials
+export const addOrUpdateSocials = async (req, res) => {
+  try {
+    const { linkedin, instagram, facebook, twitter } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user,
+      { socials: { linkedin, instagram, facebook, twitter } },
+      { new: true }
+    ).select("-password");
 
     if (!user) {
-      return errorHandler(res, 404, "User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    user.socials = {
-      linkedin: linkedinUrl,
-      instagram: instagramUrl,
-      facebook: facebookUrl,
-      twitter: twitterUrl,
-    };
+    res.status(200).json({ message: "Social details updated", user });
+  } catch (error) {
+    console.error("Error updating socials:", error);
+    res.status(500).json({ message: "Server error while updating socials" });
+  }
+};
 
-    await user.save();
+// DELETE socials (clear them)
+export const deleteSocials = async (req, res) => {
+  try {
+    const { platform } = req.body; // e.g., "linkedin", "instagram", "facebook", "twitter"
 
-    return res.status(200).json({
-      success: true,
-      message: "Social accounts updated successfully",
-      data: user.socials,
+    // Validate input
+    const validPlatforms = ["linkedin", "instagram", "facebook", "twitter"];
+    if (!platform || !validPlatforms.includes(platform)) {
+      return res.status(400).json({
+        message:
+          "Please specify a valid platform: linkedin, instagram, facebook, or twitter",
+      });
+    }
+
+    // Build dynamic update object
+    const updateField = {};
+    updateField[`socials.${platform}`] = "";
+
+    const user = await User.findByIdAndUpdate(
+      req.user,
+      { $set: updateField },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: `${platform} link removed successfully`,
+      user,
     });
   } catch (error) {
-    console.error("Error in Adding Socials:", error.message);
-    return serverErrorHandler(res, 500, "Internal Server Error");
+    console.error("Error deleting social:", error);
+    res.status(500).json({
+      message: "Server error while deleting social link",
+    });
   }
 };

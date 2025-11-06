@@ -7,7 +7,8 @@ import cors from "cors";
 import "dotenv/config";
 
 // Routes
-import authRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 
 const FRONTEND_URL = process.env.FRONTEND_URI || "http://localhost:5173";
 const PORT = process.env.PORT || 8000;
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Run App
 app.listen(PORT, () => {

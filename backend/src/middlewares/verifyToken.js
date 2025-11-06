@@ -1,37 +1,23 @@
 import jwt from "jsonwebtoken";
-import { errorHandler } from "../utils/responseHandlers.js";
 
 export const verifyToken = (req, res, next) => {
   try {
-    let token;
+    const token =
+      req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
 
-    // Try to get token from cookie
-    if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    }
-
-    // If not found, try Authorization header: Bearer <token>
-    else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    // No token found
     if (!token) {
-      return errorHandler(res, 401, "Access denied. No token provided.");
+      return res.status(401).json({ message: "No token provided" });
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.id || decoded.userId; // 👈 handle both cases
 
-    // Attach decoded data to request
-    req.user = { id: decoded.id };
+    if (!req.user) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
 
     next();
-  } catch (error) {
-    console.error("JWT Verification Error:", error.message);
-    return errorHandler(res, 403, "Invalid or expired token");
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
