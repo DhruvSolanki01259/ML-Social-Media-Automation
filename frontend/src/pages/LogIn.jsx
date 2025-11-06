@@ -4,7 +4,6 @@ import { Lock, Mail, Loader, Github } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
-import { useAuthStore } from "../stores/authStore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,19 +11,12 @@ const Login = () => {
   const [localError, setLocalError] = useState(null);
   const navigate = useNavigate();
 
-  const { login, isLoading, error, isAuthenticated } = useAuthStore();
+  const isLoading = false;
+  const error = null;
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLocalError(null);
-
-    await login(email, password);
-    const success = await login(email, password);
-    if (success) {
-      navigate("/");
-    } else {
-      setLocalError("Invalid email or password");
-    }
+    // Login
   };
 
   const handleSocialLogin = (provider) => {

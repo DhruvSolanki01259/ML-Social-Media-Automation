@@ -6,10 +6,9 @@ import {
   PlusCircle,
   Link2,
   Settings2,
-  MapPin, // ✅ Added
+  MapPin,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../stores/authStore";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -19,7 +18,9 @@ const fadeUp = (delay = 0) => ({
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout, isLoading } = useAuthStore();
+
+  const isLoading = false;
+  const user = { username: "Dhruv Solanki", email: "dhruvsolanki0129" };
 
   const [editMode, setEditMode] = useState(false);
   const [showSocialForm, setShowSocialForm] = useState(false);
@@ -38,8 +39,7 @@ const Profile = () => {
 
   // ✅ Logout handler
   const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+    // Logout
   };
 
   const handleProfileSave = () => {

@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import Input from "../components/Input";
 import GenderCheckbox from "../components/GenderCheckbox";
-import { useAuthStore } from "../stores/authStore";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -15,22 +14,11 @@ const SignUp = () => {
   const [gender, setGender] = useState("");
   const navigate = useNavigate();
 
-  const { signup, isLoading, error } = useAuthStore();
+  const isLoading = false;
+  const error = null;
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
-    try {
-      const success = await signup(username, email, password, gender);
-
-      if (success) {
-        navigate("/");
-      } else {
-        setLocalError("Invalid email or password");
-      }
-    } catch (err) {
-      console.error("Signup failed:", err);
-    }
   };
 
   const handleSocialSignUp = (provider) => {

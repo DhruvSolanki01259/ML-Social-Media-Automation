@@ -2,14 +2,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../stores/authStore";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
 
-  const { user, isAuthenticated, logout, isLoading } = useAuthStore();
+  const isAuthenticated = false;
+  const user = { username: "Dhruv Solanki", email: "dhruvsolanki0129" };
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -19,8 +19,7 @@ const Header = () => {
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+    // Logout
   };
 
   const tabAnimation = {

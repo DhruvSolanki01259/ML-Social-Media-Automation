@@ -12,36 +12,7 @@ import Analytics from "./pages/Analytics";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import NotFound from "./pages/NotFound";
-import { useAuthStore } from "./stores/authStore";
 import CreatePost from "./pages/CreatePost";
-
-// ✅ Protected Route — requires login
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated || !user) {
-    return (
-      <Navigate
-        to='/login'
-        replace
-      />
-    );
-  }
-  return children;
-};
-
-// ✅ Public Route — redirects if already logged in
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user) {
-    return (
-      <Navigate
-        to='/profile'
-        replace
-      />
-    );
-  }
-  return children;
-};
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(false);
@@ -52,10 +23,6 @@ const App = () => {
       setShowSplash(true);
       sessionStorage.setItem("visited", "true");
     }
-  }, []);
-
-  useEffect(() => {
-    useAuthStore.getState().validateSession();
   }, []);
 
   return (
@@ -92,45 +59,25 @@ const App = () => {
 
               <Route
                 path='/login'
-                element={
-                  <PublicRoute>
-                    <LogIn />
-                  </PublicRoute>
-                }
+                element={<LogIn />}
               />
               <Route
                 path='/signup'
-                element={
-                  <PublicRoute>
-                    <SignUp />
-                  </PublicRoute>
-                }
+                element={<SignUp />}
               />
 
               {/* ✅ Protected Routes (login required) */}
               <Route
                 path='/profile'
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
+                element={<Profile />}
               />
               <Route
                 path='/analytics'
-                element={
-                  <ProtectedRoute>
-                    <Analytics />
-                  </ProtectedRoute>
-                }
+                element={<Analytics />}
               />
               <Route
                 path='/create-post'
-                element={
-                  <ProtectedRoute>
-                    <CreatePost />
-                  </ProtectedRoute>
-                }
+                element={<CreatePost />}
               />
 
               {/* ❌ Catch-all 404 */}
