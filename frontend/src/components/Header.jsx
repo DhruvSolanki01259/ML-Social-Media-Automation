@@ -1,25 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/auth.store";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
 
-  const isAuthenticated = false;
-  const user = { username: "Dhruv Solanki", email: "dhruvsolanki0129" };
+  // ✅ Zustand global state
+  const { user, logout, isAuthenticated } = useAuthStore();
 
   const handleNavigate = (path) => {
     navigate(path);
     setIsOpen(false);
   };
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark", !isDarkMode);
+  };
 
   const handleLogout = async () => {
-    // Logout
+    await logout();
+    navigate("/login");
   };
 
   const tabAnimation = {
@@ -41,7 +46,7 @@ const Header = () => {
       bg-[#F8FAFC] border-b border-[#E2E8F0] 
       shadow-sm backdrop-blur-md'>
       <div className='max-w-7xl mx-auto px-6 py-2 flex items-center justify-between gap-4 h-16'>
-        {/* 🌐 App Logo (smaller for balanced height) */}
+        {/* 🌐 App Logo */}
         <motion.img
           src='/app-logo.png'
           alt='App Logo'
@@ -75,8 +80,8 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* 🎛️ Right Side Controls */}
-        <div className='hidden md:flex items-center gap-4'>
+        {/* 🎛️ Right Controls */}
+        <div className='hidden md:flex items-center gap-4 relative'>
           {/* Theme Toggle */}
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -92,8 +97,20 @@ const Header = () => {
             )}
           </motion.button>
 
-          {/* 🔄 Auth Controls */}
-          {!isAuthenticated ? (
+          {/* ✅ User Avatar or Sign Up */}
+          {isAuthenticated && user ? (
+            <motion.img
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              src={
+                user.profilePic ||
+                "https://via.placeholder.com/40x40.png?text=U"
+              }
+              alt='Profile'
+              className='w-9 h-9 rounded-full border-2 border-[#61A5C2] object-cover cursor-pointer shadow-sm hover:shadow-md transition-all'
+              onClick={() => handleNavigate("/profile")}
+            />
+          ) : (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -102,18 +119,6 @@ const Header = () => {
                 border-[#01497C] text-[#01497C] hover:bg-[#01497C] hover:text-[#FFFFFF] transition-all duration-400 ease-in-out text-sm'>
               Sign Up
             </motion.button>
-          ) : (
-            <motion.img
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              src={
-                user?.profilePic ||
-                "https://via.placeholder.com/40x40.png?text=U"
-              }
-              alt='Profile'
-              className='w-9 h-9 rounded-full border-2 border-[#61A5C2] object-cover cursor-pointer shadow-sm hover:shadow-md transition-all'
-              onClick={() => handleNavigate("/profile")}
-            />
           )}
         </div>
 
@@ -173,7 +178,7 @@ const Header = () => {
                 </motion.button>
               ))}
 
-              {/* 🔄 Auth Conditional Rendering for Mobile */}
+              {/* 🔄 Mobile Auth Options */}
               {!isAuthenticated ? (
                 <motion.button
                   onClick={() => handleNavigate("/signup")}
@@ -195,7 +200,6 @@ const Header = () => {
                   </motion.button>
                   <motion.button
                     onClick={handleLogout}
-                    disabled={isLoading}
                     className='flex items-center gap-2 px-4 py-2 rounded-md border 
                       border-[#E63946] text-[#E63946] hover:bg-[#E63946] hover:text-white transition-all duration-300'>
                     <LogOut className='w-4 h-4' /> Logout

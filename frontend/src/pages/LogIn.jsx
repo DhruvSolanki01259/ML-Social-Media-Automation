@@ -4,22 +4,22 @@ import { Lock, Mail, Loader, Github } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
+import { useAuthStore } from "../stores/auth.store";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [localError, setLocalError] = useState(null);
   const navigate = useNavigate();
 
-  const isLoading = false;
-  const error = null;
+  const { login, isLoading, error } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // Login
+    if (!email || !password) return;
+    await login(email, password, navigate);
   };
 
-  const handleSocialLogin = (provider) => {
+const handleSocialLogin = (provider) => {
     console.log(`Login with ${provider} clicked`);
     // OAuth logic
   };
@@ -77,9 +77,9 @@ const Login = () => {
                 required
               />
 
-              {(error || localError) && (
+              {error && (
                 <p className='text-[#E63946] text-sm font-medium text-center'>
-                  {error || localError}
+                  {error}
                 </p>
               )}
 
@@ -111,7 +111,7 @@ const Login = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleSocialLogin("Google")}
+                onClick={() => handleSocialLogin("google")}
                 className='flex items-center gap-2 px-5 py-2.5 border border-[#E2E8F0] rounded-lg text-[#013A63] hover:bg-[#F1F5F9] transition'>
                 <FcGoogle className='w-5 h-5' />
                 Google
@@ -120,14 +120,13 @@ const Login = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleSocialLogin("GitHub")}
+                onClick={() => handleSocialLogin("github")}
                 className='flex items-center gap-2 px-5 py-2.5 border border-[#E2E8F0] rounded-lg text-[#013A63] hover:bg-[#F1F5F9] transition'>
                 <Github className='w-5 h-5 text-[#2A6F97]' />
                 GitHub
               </motion.button>
             </div>
 
-            {/* Signup Redirect */}
             <div className='mt-6 text-center'>
               <p className='text-sm text-[#6C757D]'>
                 Don’t have an account?{" "}

@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import Input from "../components/Input";
 import GenderCheckbox from "../components/GenderCheckbox";
+import { useAuthStore } from "../stores/auth.store";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -14,16 +15,29 @@ const SignUp = () => {
   const [gender, setGender] = useState("");
   const navigate = useNavigate();
 
-  const isLoading = false;
-  const error = null;
+  // ✅ Zustand store
+  const { signup, isLoading, error, clearError } = useAuthStore();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    clearError();
+
+    if (!username || !email || !password || !gender) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    const result = await signup({ username, email, password, gender });
+
+    if (result?.user) {
+      navigate("/profile");
+    }
   };
 
   const handleSocialSignUp = (provider) => {
     console.log(`Signup with ${provider} clicked`);
-    // OAuth endpoints.
+    // Here you’ll later integrate Google & GitHub OAuth routes
+    // Example: window.location.href = `${VITE_BACKEND_URL}/api/auth/${provider.toLowerCase()}`;
   };
 
   return (

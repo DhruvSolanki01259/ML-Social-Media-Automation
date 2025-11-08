@@ -13,6 +13,34 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import NotFound from "./pages/NotFound";
 import CreatePost from "./pages/CreatePost";
+import { useAuthStore } from "./stores/auth.store";
+
+// Protected route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  if (isLoading) return <div className='text-center mt-20'>Loading...</div>;
+  return isAuthenticated ? (
+    children
+  ) : (
+    <Navigate
+      to='/login'
+      replace
+    />
+  );
+};
+
+// Public route wrapper (redirect to /profile if already logged in)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAuthStore();
+  return isAuthenticated ? (
+    <Navigate
+      to='/profile'
+      replace
+    />
+  ) : (
+    children
+  );
+};
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(false);
@@ -43,7 +71,7 @@ const App = () => {
           transition={{ duration: 1, ease: "easeInOut" }}>
           <Layout>
             <Routes>
-              {/* ✅ Public Routes (accessible to all users) */}
+              {/* Public Routes */}
               <Route
                 path='/'
                 element={<Home />}
@@ -53,34 +81,57 @@ const App = () => {
                 element={<About />}
               />
               <Route
-                path='/contact'
-                element={<Contact />}
-              />
-
-              <Route
                 path='/login'
-                element={<LogIn />}
+                element={
+                  <PublicRoute>
+                    <LogIn />
+                  </PublicRoute>
+                }
               />
               <Route
                 path='/signup'
-                element={<SignUp />}
+                element={
+                  <PublicRoute>
+                    <SignUp />
+                  </PublicRoute>
+                }
               />
 
-              {/* ✅ Protected Routes (login required) */}
+              {/* Protected Routes */}
               <Route
                 path='/profile'
-                element={<Profile />}
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/contact'
+                element={
+                  <ProtectedRoute>
+                    <Contact />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path='/analytics'
-                element={<Analytics />}
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path='/create-post'
-                element={<CreatePost />}
+                element={
+                  <ProtectedRoute>
+                    <CreatePost />
+                  </ProtectedRoute>
+                }
               />
 
-              {/* ❌ Catch-all 404 */}
+              {/* Catch-all 404 */}
               <Route
                 path='*'
                 element={<NotFound />}
