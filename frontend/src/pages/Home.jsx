@@ -1,15 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Zap,
-  Calendar,
-  BarChart3,
-  Share2,
-  Instagram,
-  Twitter,
-  Linkedin,
-  CheckCircle,
-} from "lucide-react";
+import { Zap, Calendar, BarChart3, Share2, CheckCircle, X } from "lucide-react";
+import { FaInstagram, FaTwitter, FaLinkedin, FaFacebook } from "react-icons/fa";
+import { usePostStore } from "../stores/post.store";
+import { useProfileStore } from "../stores/profile.store";
+import { useNavigate } from "react-router-dom";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 40 },
@@ -17,10 +12,51 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.8, delay, ease: "easeOut" },
 });
 
+// Socials
+const SUPPORTED_SOCIALS = [
+  {
+    name: "Instagram",
+    icon: <FaInstagram className='w-5 h-5' />,
+    color: "#E4405F",
+  },
+  {
+    name: "Twitter",
+    icon: <FaTwitter className='w-5 h-5' />,
+    color: "#1DA1F2",
+  },
+  {
+    name: "LinkedIn",
+    icon: <FaLinkedin className='w-5 h-5' />,
+    color: "#0077B5",
+  },
+  {
+    name: "Facebook",
+    icon: <FaFacebook className='w-5 h-5' />,
+    color: "#1877F2",
+  },
+];
+
 const Home = () => {
+  const navigate = useNavigate();
+
+  // Fetch posts and profile info
+  const { posts } = usePostStore();
+  const { socials, getProfile } = useProfileStore();
+
+  // Fetch profile on mount for persistent social state
+  useEffect(() => {
+    getProfile();
+  }, []);
+
+  // Get next scheduled post
+  const scheduledPosts = posts
+    .filter((p) => p.isScheduled && new Date(p.scheduledAt) > new Date())
+    .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+  const nextScheduledPost = scheduledPosts[0];
+
   return (
     <section className='bg-[#F8FAFC] text-[#012A4A] min-h-screen overflow-hidden'>
-      {/* 🌟 Hero Section */}
+      {/* Hero Section */}
       <div className='max-w-7xl mx-auto px-6 py-24 flex flex-col lg:flex-row items-center justify-between gap-16'>
         {/* Left - Text */}
         <motion.div
@@ -40,7 +76,7 @@ const Home = () => {
 
           <div className='flex flex-wrap justify-center lg:justify-start gap-4 mt-10'>
             <button
-              onClick={() => (window.location.href = "/profile")}
+              onClick={() => navigate("/profile")}
               className='bg-[#01497C] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#014F86] shadow-md transition-all duration-300'>
               Get Started
             </button>
@@ -59,7 +95,7 @@ const Home = () => {
 
           {/* Floating Dashboard Cards */}
           <div className='relative w-full h-full flex flex-col items-center justify-center'>
-            {/* Main Card */}
+            {/* Scheduled Post */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
@@ -68,13 +104,23 @@ const Home = () => {
                 <Calendar className='text-[#01497C] w-5 h-5' />
                 Scheduled Post
               </h3>
-              <div className='bg-[#F1F5F9] rounded-xl p-3'>
-                <p className='text-[#013A63] text-sm font-medium'>
-                  "Product Launch Tomorrow 🚀"
-                </p>
-                <p className='text-[#6C757D] text-xs mt-1'>
-                  Scheduled for 10:30 AM
-                </p>
+              <div className='bg-[#F1F5F9] rounded-xl p-3 min-h-[60px] flex items-center justify-center text-center'>
+                {nextScheduledPost ? (
+                  <div>
+                    <p className='text-[#013A63] text-sm font-medium'>
+                      "{nextScheduledPost.title}"
+                    </p>
+                    <p className='text-[#6C757D] text-xs mt-1'>
+                      Scheduled for{" "}
+                      {new Date(nextScheduledPost.scheduledAt).toLocaleString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className='text-[#6C757D] text-sm'>
+                    You have no scheduled posts yet. Create a post to see
+                    detailed analytics here!
+                  </p>
+                )}
               </div>
             </motion.div>
 
@@ -96,11 +142,12 @@ const Home = () => {
                 <motion.div
                   className='absolute bottom-0 left-0 right-0 bg-[#01497C]'
                   animate={{ height: ["40%", "80%", "50%"] }}
-                  transition={{ repeat: Infinity, duration: 3 }}></motion.div>
+                  transition={{ repeat: Infinity, duration: 3 }}
+                />
               </div>
             </motion.div>
 
-            {/* Static Socials Card */}
+            {/* Connected Socials */}
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{
@@ -111,20 +158,43 @@ const Home = () => {
               }}
               className='absolute bottom-[-40px] left-[-40px] bg-white border border-[#E2E8F0] rounded-2xl shadow-lg p-4 w-[180px] sm:w-[200px]'>
               <h4 className='text-sm font-semibold text-[#012A4A] mb-2 flex items-center gap-1'>
-                <CheckCircle className='text-[#2ECC71] w-4 h-4' />
-                <span>All Connected</span>
+                {Object.values(socials || {}).some(Boolean) ? (
+                  <CheckCircle className='text-[#2ECC71] w-4 h-4' />
+                ) : (
+                  <X className='text-red-500 w-4 h-4' />
+                )}
+                <span>Connected Socials</span>
               </h4>
-              <div className='flex items-center gap-3 mt-2'>
-                <Instagram className='w-5 h-5 text-[#E1306C]' />
-                <Twitter className='w-5 h-5 text-[#1DA1F2]' />
-                <Linkedin className='w-5 h-5 text-[#0077B5]' />
+              <div className='flex flex-wrap gap-3 mt-2'>
+                {SUPPORTED_SOCIALS.map((s) => {
+                  const isConnected = socials ? socials[s.name] : false;
+                  return (
+                    <div
+                      key={s.name}
+                      onClick={() => !isConnected && navigate("/profile")}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full border cursor-pointer ${
+                        isConnected
+                          ? "bg-[#E0F2FF] border-[#01497C]"
+                          : "bg-white border-[#E2E8F0] hover:bg-[#F1F5F9]"
+                      }`}
+                      title={
+                        isConnected
+                          ? `${s.name} Connected`
+                          : `Click to connect ${s.name}`
+                      }>
+                      {React.cloneElement(s.icon, {
+                        className: `${s.icon.props.className} text-[${s.color}]`,
+                      })}
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
         </motion.div>
       </div>
 
-      {/* 💎 Features Section */}
+      {/* Features Section */}
       <motion.div
         {...fadeUp(0.5)}
         className='max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10'>
@@ -161,12 +231,11 @@ const Home = () => {
         ))}
       </motion.div>
 
-      {/* 🚀 CTA Section */}
+      {/* CTA Section */}
       <motion.div
         {...fadeUp(0.6)}
         className='relative bg-gradient-to-r from-[#01497C] to-[#61A5C2] text-white py-20 px-6 text-center rounded-[2.5rem] mx-6 my-24 shadow-lg overflow-hidden'>
         <div className='absolute inset-0 bg-white/10 backdrop-blur-sm'></div>
-
         <div className='relative z-10'>
           <h2 className='text-3xl md:text-4xl font-bold mb-6'>
             Ready to Elevate Your Social Media Game?
@@ -179,10 +248,9 @@ const Home = () => {
             </span>{" "}
             🎉
           </p>
-
           <div className='flex flex-wrap justify-center gap-4 mt-10'>
             <button
-              onClick={() => (window.location.href = "/profile")}
+              onClick={() => navigate("/profile")}
               className='bg-white text-[#01497C] px-8 py-3 rounded-xl font-semibold hover:bg-[#E0F2FF] transition-all duration-300 shadow-md hover:shadow-lg'>
               Get Started
             </button>

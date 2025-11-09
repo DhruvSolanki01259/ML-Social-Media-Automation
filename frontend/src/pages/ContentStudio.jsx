@@ -54,7 +54,7 @@ const ContentStudio = () => {
               </div>
               <button
                 onClick={() => setIsCreatingPost(true)}
-                className='flex items-center gap-2 bg-[#01497C] text-white font-medium px-5 py-2.5 rounded-lg shadow hover:bg-[#014F86] transition-all'>
+                className='flex items-center gap-2 px-5 py-2 rounded-lg border border-[#01497C] text-[#01497C] font-medium hover:bg-[#01497C] hover:text-white transition-all'>
                 <PlusCircle size={20} />
                 Create Post
               </button>

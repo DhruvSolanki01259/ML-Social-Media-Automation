@@ -112,16 +112,6 @@ const Profile = () => {
               Manage your profile and connected social accounts.
             </p>
           </div>
-
-          {/* ✅ Create Post Button */}
-          <div className='flex items-center gap-4'>
-            <button
-              onClick={() => navigate("/create-post")}
-              className='flex items-center gap-2 px-5 py-2 rounded-lg border border-[#01497C] text-[#01497C] font-medium hover:bg-[#01497C] hover:text-white transition-all'>
-              <PlusCircle className='w-5 h-5' />
-              Create Post
-            </button>
-          </div>
         </motion.div>
 
         {/* === PROFILE CARD === */}
