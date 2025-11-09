@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
       trim: true,
-      maxlength: 160, // Twitter-like bio limit
+      maxlength: 160,
       default: "",
     },
     location: {
@@ -58,6 +58,20 @@ const userSchema = new mongoose.Schema(
       facebook: { type: String, default: "" },
       twitter: { type: String, default: "" },
     },
+
+    // Track Posts
+    uploadedPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    scheduledPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
   { timestamps: true }
 );

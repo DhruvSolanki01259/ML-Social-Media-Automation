@@ -9,7 +9,6 @@ const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Zustand global state
   const { user, logout, isAuthenticated } = useAuthStore();
 
   const handleNavigate = (path) => {
@@ -40,6 +39,17 @@ const Header = () => {
     }),
   };
 
+  // 🧭 Navigation Tabs (dynamic)
+  const tabs = [
+    { label: "About Us", path: "/about-us" },
+    { label: "Contact", path: "/contact" },
+    { label: "View Analytics", path: "/analytics" },
+  ];
+
+  if (isAuthenticated) {
+    tabs.splice(2, 0, { label: "Content Studio", path: "/content-studio" }); // insert dynamically
+  }
+
   return (
     <header
       className='w-full fixed top-0 left-0 z-30 
@@ -59,11 +69,7 @@ const Header = () => {
 
         {/* 🧭 Navigation Tabs */}
         <nav className='hidden md:flex items-center gap-8 text-[#013A63] font-medium'>
-          {[
-            { label: "About Us", path: "/about-us" },
-            { label: "Contact", path: "/contact" },
-            { label: "View Analytics", path: "/analytics" },
-          ].map((tab, i) => (
+          {tabs.map((tab, i) => (
             <motion.button
               key={tab.path}
               onClick={() => handleNavigate(tab.path)}
@@ -161,11 +167,7 @@ const Header = () => {
             transition={{ duration: 0.5 }}
             className='md:hidden bg-[#FFFFFF] border-t border-[#E2E8F0] shadow-md'>
             <div className='flex flex-col px-6 py-4 space-y-3 text-[#013A63] font-medium'>
-              {[
-                { label: "About Us", path: "/about-us" },
-                { label: "Contact", path: "/contact" },
-                { label: "View Analytics", path: "/analytics" },
-              ].map((tab, i) => (
+              {tabs.map((tab, i) => (
                 <motion.button
                   key={tab.path}
                   onClick={() => handleNavigate(tab.path)}

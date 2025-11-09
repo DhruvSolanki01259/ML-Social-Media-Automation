@@ -8,6 +8,7 @@ import "dotenv/config";
 
 // Routes
 import authRoutes from "./routes/auth.routes.js";
+import postRoutes from "./routes/post.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 
 const FRONTEND_URL = process.env.FRONTEND_URI || "http://localhost:5173";
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
 app.use("/api/profile", profileRoutes);
 
 // Run App

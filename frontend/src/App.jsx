@@ -12,8 +12,8 @@ import Analytics from "./pages/Analytics";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import NotFound from "./pages/NotFound";
-import CreatePost from "./pages/CreatePost";
 import { useAuthStore } from "./stores/auth.store";
+import ContentStudio from "./pages/ContentStudio";
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -123,10 +123,10 @@ const App = () => {
                 }
               />
               <Route
-                path='/create-post'
+                path='/content-studio'
                 element={
                   <ProtectedRoute>
-                    <CreatePost />
+                    <ContentStudio />
                   </ProtectedRoute>
                 }
               />
