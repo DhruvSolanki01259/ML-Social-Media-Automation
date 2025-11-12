@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
 
-export const verifyToken = (req, res, next) => {
+export const verifyToken = async (req, res, next) => {
   try {
     const token =
       req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
@@ -10,14 +11,16 @@ export const verifyToken = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id || decoded.userId;
 
-    if (!req.user) {
-      return res.status(401).json({ message: "Invalid token payload" });
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
+    req.user = user;
     next();
-  } catch (err) {
-    return res.status(403).json({ message: "Invalid or expired token" });
+  } catch (error) {
+    console.error("verifyToken Error:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

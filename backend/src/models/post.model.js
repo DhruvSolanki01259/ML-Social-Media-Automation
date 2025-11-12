@@ -37,6 +37,7 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: [
+        "Adventure",
         "Marketing",
         "Education",
         "Entertainment",
@@ -87,6 +88,7 @@ const postSchema = new mongoose.Schema(
     mediaUrls: [
       {
         type: String,
+        default: "",
       },
     ],
   },
