@@ -1,5 +1,14 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import cloudinary from "cloudinary";
+import fs from "fs";
+
+// Configure Cloudinary
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // ✅ CREATE POST
 export const createPost = async (req, res) => {
@@ -11,7 +20,7 @@ export const createPost = async (req, res) => {
       socialMedia,
       isScheduled,
       scheduledAt,
-      mediaUrls,
+      category,
     } = req.body;
     const userId = req.user._id;
 
@@ -19,15 +28,30 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Upload media files to Cloudinary
+    let mediaUrls = [];
+    if (req.files?.length) {
+      for (const file of req.files) {
+        const result = await cloudinary.v2.uploader.upload(file.path, {
+          resource_type: file.mimetype.startsWith("video") ? "video" : "image",
+        });
+        mediaUrls.push(result.secure_url);
+
+        // Remove temp file after upload
+        fs.unlinkSync(file.path);
+      }
+    }
+
     const newPost = await Post.create({
       user: userId,
       title,
       description,
-      tags,
-      socialMedia,
-      isScheduled,
+      tags: tags ? JSON.parse(tags) : [], // in case tags come as JSON string
+      socialMedia: socialMedia ? JSON.parse(socialMedia) : [],
+      category: category || "Other",
+      isScheduled: isScheduled === "true" || isScheduled === true,
       scheduledAt: isScheduled ? scheduledAt : null,
-      isPosted: !isScheduled,
+      isPosted: !(isScheduled === "true" || isScheduled === true),
       mediaUrls,
     });
 
@@ -48,7 +72,7 @@ export const createPost = async (req, res) => {
   }
 };
 
-// ✅ GET ALL POSTS (for logged-in user)
+// ✅ GET ALL POSTS
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find({ user: req.user._id }).sort({
@@ -77,7 +101,25 @@ export const getPostById = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedData = req.body;
+    const updatedData = { ...req.body };
+
+    // Parse JSON fields if coming from form-data
+    if (updatedData.tags) updatedData.tags = JSON.parse(updatedData.tags);
+    if (updatedData.socialMedia)
+      updatedData.socialMedia = JSON.parse(updatedData.socialMedia);
+
+    // Upload new media files to Cloudinary if provided
+    if (req.files?.length) {
+      const mediaUrls = [];
+      for (const file of req.files) {
+        const result = await cloudinary.v2.uploader.upload(file.path, {
+          resource_type: file.mimetype.startsWith("video") ? "video" : "image",
+        });
+        mediaUrls.push(result.secure_url);
+        fs.unlinkSync(file.path);
+      }
+      updatedData.mediaUrls = mediaUrls;
+    }
 
     const post = await Post.findOneAndUpdate(
       { _id: id, user: req.user._id },

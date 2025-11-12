@@ -34,6 +34,36 @@ const postSchema = new mongoose.Schema(
         message: "At least one social media platform must be selected",
       },
     },
+    category: {
+      type: String,
+      enum: [
+        "Marketing",
+        "Education",
+        "Entertainment",
+        "News",
+        "Lifestyle",
+        "Health & Fitness",
+        "Food & Recipes",
+        "Travel",
+        "Technology",
+        "Business",
+        "Finance",
+        "Fashion",
+        "Beauty",
+        "Gaming",
+        "Sports",
+        "Music",
+        "Photography",
+        "DIY & Crafts",
+        "Motivation & Inspiration",
+        "Science",
+        "Politics",
+        "Culture",
+        "Memes",
+        "Other",
+      ],
+      default: "Other",
+    },
     date: {
       type: Date,
       default: Date.now,
@@ -48,7 +78,7 @@ const postSchema = new mongoose.Schema(
     },
     scheduledAt: {
       type: Date,
-      default: null, // for scheduled posts (combined date + time)
+      default: null,
     },
     isPosted: {
       type: Boolean,
@@ -56,7 +86,7 @@ const postSchema = new mongoose.Schema(
     },
     mediaUrls: [
       {
-        type: String, // store image/video URLs
+        type: String,
       },
     ],
   },

@@ -7,11 +7,12 @@ import {
   deletePost,
 } from "../controllers/post.controllers.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import upload from "../middlewares/handleFiles.js";
 
 const router = express.Router();
 
 // All routes are protected
-router.post("/", verifyToken, createPost);
+router.post("/", verifyToken, upload.array("mediaFiles"), createPost);
 router.get("/", verifyToken, getAllPosts);
 router.get("/:id", verifyToken, getPostById);
 router.put("/:id", verifyToken, updatePost);
